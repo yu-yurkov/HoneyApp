@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#F6AD1D</color>
+    <color name="colorPrimaryDark">#f18425</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <!-- цвета для градиента -->
+    <color name="startColor">#F08821</color>
+    <color name="endColor">#F6AD1D</color>
+    <color name="centerColor">#f18425</color>
+
+    <!-- листинг -->
+    <color name="listing_bg">#f1f1f1</color>
+    <color name="listing_price">#008d07</color>
+    <color name="listing_cart">#808080</color>
+
+</resources>
