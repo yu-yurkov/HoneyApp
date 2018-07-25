@@ -50,7 +50,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         final MyViewHolder myViewHolder = new MyViewHolder(view);
 
-
+        myViewHolder.add_cart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.setBackgroundResource(R.drawable.cart_count_bg);
+                Log.i(TAG, "onClick: ");
+            }
+        });
 
 
 //        // enter card
@@ -117,6 +123,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             tv_price = itemView.findViewById(R.id.price);
             img_photo = itemView.findViewById(R.id.photo);
 
+            // Блок добавить в корзину
+            add_cart = itemView.findViewById(R.id.add_cart);
 
         }
 
