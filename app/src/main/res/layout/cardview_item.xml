@@ -46,7 +46,7 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/add_cart"
+
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1.2"
@@ -58,14 +58,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:padding="5dp"
                 android:background="@drawable/listing_cart_bg">
 
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:srcCompat="@drawable/ic_shopping_cart_black_24dp"
-                    android:tint="@color/listing_cart" />
+                    android:tint="@color/listing_cart"
+                    android:id="@+id/add_cart"
+                    android:padding="5dp"/>
 
             </LinearLayout>
 

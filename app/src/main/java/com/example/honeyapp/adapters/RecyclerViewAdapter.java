@@ -4,6 +4,7 @@ package com.example.honeyapp.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -77,21 +79,23 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
                 if(userCartId == null){
-                    Log.i(TAG, "onClick: добавляем товар в корзину: id = " + p_id);
-                    v.setBackgroundResource(R.drawable.cart_count_bg);
 
+                    Toast toast = Toast.makeText(mContext,"Товар добален в корзину", Toast.LENGTH_SHORT);
+                    toast.show();
 
+                    v.setBackgroundResource(R.drawable.added_cart_bg);
 
                     // закидываем в корзину
                     userCartDao.insert(userCartEntity);
 
                 }else{
-                    Log.i(TAG, "onClick: товар уже в корзине. Убираем");
-
-                    v.setBackgroundResource(R.drawable.add_cart_bg);
+                    v.setBackgroundResource(R.drawable.listing_cart_bg);
 
                     // удаляем из корзины
                     userCartDao.delete(userCartEntity);
+                    Toast toast = Toast.makeText(mContext,"Товар удален из корзины", Toast.LENGTH_SHORT);
+                    toast.show();
+
                 }
 
 
@@ -159,7 +163,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         LinearLayout view_container;
 
         // кнопка
-        LinearLayout add_cart;
+        ImageView add_cart;
 
         public MyViewHolder(View itemView) {
             super(itemView);
