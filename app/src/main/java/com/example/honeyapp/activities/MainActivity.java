@@ -19,6 +19,10 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.honeyapp.R;
 import com.example.honeyapp.adapters.RecyclerViewAdapter;
+import com.example.honeyapp.dao.UserCartDao;
+import com.example.honeyapp.database.App;
+import com.example.honeyapp.database.AppDatabase;
+import com.example.honeyapp.entities.UserCartEntity;
 import com.example.honeyapp.model.Products;
 
 import org.json.JSONArray;
@@ -178,6 +182,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setuprecycleview(List<Products> listProducts) {
+
+
+        // передаём в адаптер товары которые лежат в корзине
+
+        List<UserCartEntity> userCart;
+        userCartMap = new TreeMap<Integer, Integer>();
+
+        AppDatabase db = App.getInstance().getDatabase();
+        UserCartDao userCartDao = db.userCartDao();
+
+        userCart = userCartDao.getAll();
+
+        // упаковываем в TreeMap
+        for (UserCartEntity element : userCart) {
+            userCartMap.put(element.id, element.quantity);
+        }
+
 
         RecyclerViewAdapter myAdapter = new RecyclerViewAdapter(this,listProducts, userCartMap);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

@@ -18,6 +18,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.honeyapp.R;
+import com.example.honeyapp.dao.UserCartDao;
+import com.example.honeyapp.database.App;
+import com.example.honeyapp.database.AppDatabase;
+import com.example.honeyapp.entities.UserCartEntity;
 import com.example.honeyapp.model.Products;
 
 
@@ -50,11 +54,49 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         final MyViewHolder myViewHolder = new MyViewHolder(view);
 
+
+        // кликаем добавить в корзину
         myViewHolder.add_cart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                v.setBackgroundResource(R.drawable.cart_count_bg);
-                Log.i(TAG, "onClick: ");
+
+                AppDatabase db = App.getInstance().getDatabase();
+                UserCartDao userCartDao = db.userCartDao();
+
+                // определяем id товара
+                int p_id = mData.get(myViewHolder.getAdapterPosition()).getId();
+
+                // формируем данные
+                UserCartEntity userCartEntity = new UserCartEntity();
+                userCartEntity.id = p_id;
+                userCartEntity.quantity = 1;
+                userCartEntity.products = mData.get(myViewHolder.getAdapterPosition());
+
+                // проверяем наличие товара в корзине
+                UserCartEntity userCartId = userCartDao.getById(p_id);
+
+
+                if(userCartId == null){
+                    Log.i(TAG, "onClick: добавляем товар в корзину: id = " + p_id);
+                    v.setBackgroundResource(R.drawable.cart_count_bg);
+
+
+
+                    // закидываем в корзину
+                    userCartDao.insert(userCartEntity);
+
+                }else{
+                    Log.i(TAG, "onClick: товар уже в корзине. Убираем");
+
+                    v.setBackgroundResource(R.drawable.add_cart_bg);
+
+                    // удаляем из корзины
+                    userCartDao.delete(userCartEntity);
+                }
+
+
+
+
             }
         });
 
@@ -90,6 +132,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
+
+
+
 
 
         holder.tv_name.setText(mData.get(position).getName());
