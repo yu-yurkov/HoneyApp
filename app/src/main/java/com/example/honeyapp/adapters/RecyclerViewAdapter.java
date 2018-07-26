@@ -138,7 +138,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
 
-
+        //  если в мапе есть id меняем стиль кнопки
+        if(userCartMap.containsKey(mData.get(position).getId())){
+            holder.add_cart.setBackgroundResource(R.drawable.added_cart_bg);
+        }
 
 
         holder.tv_name.setText(mData.get(position).getName());
