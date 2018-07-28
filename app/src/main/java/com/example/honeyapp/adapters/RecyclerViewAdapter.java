@@ -4,9 +4,11 @@ package com.example.honeyapp.adapters;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,14 +33,16 @@ import java.util.List;
 import java.util.TreeMap;
 
 
-public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder>{
+public class RecyclerViewAdapter extends SelectableAdapter<RecyclerViewAdapter.MyViewHolder>{
 
     private static final String TAG = "TAG";
     private Context mContext;
     private List<Products> mData;
     public TreeMap<Integer, Integer> userCartMap;
     RequestOptions option;
-    ImageView img;
+
+    SparseBooleanArray sparseBooleanArray; // for identifying: in list which items are selected
+
 
     public RecyclerViewAdapter(Context mContext, List<Products> mData, TreeMap<Integer, Integer> userCartMap) {
         this.mContext = mContext;
@@ -47,6 +51,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         // Options for Glide
         this.option = new RequestOptions().centerCrop().placeholder(R.drawable.add_cart_bg).error(R.drawable.add_cart_bg);
+
+
+        sparseBooleanArray = new SparseBooleanArray();
     }
 
     @Override
@@ -55,7 +62,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         LayoutInflater inflater = LayoutInflater.from(mContext);
         view = inflater.inflate(R.layout.cardview_item, parent,false);
 
-        // выбираем другой макет если хотим подсветить корзину?
 
         final MyViewHolder myViewHolder = new MyViewHolder(view);
 
@@ -72,9 +78,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 //
 //
 //                //Log.i(TAG, "onClick: " + v.getId());
-//
-//                AppDatabase db = App.getInstance().getDatabase();
-//                UserCartDao userCartDao = db.userCartDao();
+
+                AppDatabase db = App.getInstance().getDatabase();
+                UserCartDao userCartDao = db.userCartDao();
 //
 //                // определяем id товара
 //                int p_id = mData.get(myViewHolder.getAdapterPosition()).getId();
@@ -112,18 +118,18 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 ////
 ////                }
 //
-//
-//                List<UserCartEntity> userCartsEntities = userCartDao.getAll();
-//
-//                for (UserCartEntity element : userCartsEntities) {
-//                    Log.i(TAG, "id: " + element.id
-//                            +", quantity: "+ element.quantity
-//                            +", p_id: "+ element.products.getId()
-//                            + ", p_name: " + element.products.getName()
-//                            + ", p_price: " + element.products.getPrice()
-//                            + ", p_img: " + element.products.getPhoto());
-//                }
-//
+
+        List<UserCartEntity> userCartsEntities = userCartDao.getAll();
+
+        for (UserCartEntity element : userCartsEntities) {
+            Log.i(TAG, "id: " + element.id
+                    +", quantity: "+ element.quantity
+                    +", p_id: "+ element.products.getId()
+                    + ", p_name: " + element.products.getName()
+                    + ", p_price: " + element.products.getPrice()
+                    + ", p_img: " + element.products.getPhoto());
+        }
+
 //
 //
 //
@@ -163,16 +169,26 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
-        //holder.setIsRecyclable(true);
 
         holder.tv_name.setText(mData.get(position).getName());
         holder.tv_price.setText(mData.get(position).getPrice() + " р.");
 
-
         // загрузка изображения
         Glide.with(mContext).load(mData.get(position).getPhoto()).apply(option).into(holder.img_photo);
 
+        if (sparseBooleanArray.get(position))
+        {
+            holder.add_cart.setBackgroundColor(Color.GREEN);
+        }
+        else
+        {
+            holder.add_cart.setBackgroundColor(Color.WHITE);
+        }
 
+
+
+
+        Log.d(TAG, "onBindViewHolder: " + mData.get(position).getId());
     }
 
     @Override
@@ -182,8 +198,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     // MyViewHolder (обрабатываем клики)
-    public static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
-            View.OnLongClickListener {
+    public class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView tv_name;
         TextView tv_price;
@@ -203,20 +218,25 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             // Блок добавить в корзину
             add_cart = itemView.findViewById(R.id.add_cart);
 
-            itemView.setOnClickListener(this);
-            itemView.setOnLongClickListener(this);
+            add_cart.setOnClickListener(this);
+
         }
 
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "Item clicked at position " + getAdapterPosition());
-        }
 
-        @Override
-        public boolean onLongClick(View v) {
-            Log.d(TAG, "Item long-clicked at position " + getAdapterPosition());
-            return true;
+            if (!sparseBooleanArray.get(getAdapterPosition()))
+            {
+                sparseBooleanArray.put(getAdapterPosition(),true);
+                notifyItemChanged(getAdapterPosition());
+            }
+            else // if clicked item is already selected
+            {
+                sparseBooleanArray.put(getAdapterPosition(),false);
+                notifyItemChanged(getAdapterPosition());
+            }
+
         }
     }
 }
