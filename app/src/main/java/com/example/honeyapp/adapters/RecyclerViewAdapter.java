@@ -36,8 +36,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private static final String TAG = "TAG";
     private Context mContext;
     private List<Products> mData;
-    private TreeMap<Integer, Integer> userCartMap;
+    public TreeMap<Integer, Integer> userCartMap;
     RequestOptions option;
+    ImageView img;
 
     public RecyclerViewAdapter(Context mContext, List<Products> mData, TreeMap<Integer, Integer> userCartMap) {
         this.mContext = mContext;
@@ -54,55 +55,80 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         LayoutInflater inflater = LayoutInflater.from(mContext);
         view = inflater.inflate(R.layout.cardview_item, parent,false);
 
+        // выбираем другой макет если хотим подсветить корзину?
+
         final MyViewHolder myViewHolder = new MyViewHolder(view);
 
 
+        //
+        Log.i(TAG, "onCreateViewHolder: " + myViewHolder.getAdapterPosition());
+
+
+
         // кликаем добавить в корзину
-        myViewHolder.add_cart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                AppDatabase db = App.getInstance().getDatabase();
-                UserCartDao userCartDao = db.userCartDao();
-
-                // определяем id товара
-                int p_id = mData.get(myViewHolder.getAdapterPosition()).getId();
-
-                // формируем данные
-                UserCartEntity userCartEntity = new UserCartEntity();
-                userCartEntity.id = p_id;
-                userCartEntity.quantity = 1;
-                userCartEntity.products = mData.get(myViewHolder.getAdapterPosition());
-
-                // проверяем наличие товара в корзине
-                UserCartEntity userCartId = userCartDao.getById(p_id);
-
-
-                if(userCartId == null){
-
-                    Toast toast = Toast.makeText(mContext,"Товар добален в корзину", Toast.LENGTH_SHORT);
-                    toast.show();
-
-                    v.setBackgroundResource(R.drawable.added_cart_bg);
-
-                    // закидываем в корзину
-                    userCartDao.insert(userCartEntity);
-
-                }else{
-                    v.setBackgroundResource(R.drawable.listing_cart_bg);
-
-                    // удаляем из корзины
-                    userCartDao.delete(userCartEntity);
-                    Toast toast = Toast.makeText(mContext,"Товар удален из корзины", Toast.LENGTH_SHORT);
-                    toast.show();
-
-                }
-
-
-
-
-            }
-        });
+//        myViewHolder.add_cart.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//
+//                //Log.i(TAG, "onClick: " + v.getId());
+//
+//                AppDatabase db = App.getInstance().getDatabase();
+//                UserCartDao userCartDao = db.userCartDao();
+//
+//                // определяем id товара
+//                int p_id = mData.get(myViewHolder.getAdapterPosition()).getId();
+//
+//                // формируем данные
+//                UserCartEntity userCartEntity = new UserCartEntity();
+//                userCartEntity.id = p_id;
+//                userCartEntity.quantity = 1;
+//                userCartEntity.products = mData.get(myViewHolder.getAdapterPosition());
+//
+//                // проверяем наличие товара в корзине
+//                UserCartEntity userCartId = userCartDao.getById(p_id);
+//
+//
+////                if(userCartId == null){
+////
+////                    Toast toast = Toast.makeText(mContext,"Товар добален в корзину", Toast.LENGTH_SHORT);
+////                    toast.show();
+////
+////
+////
+////
+////                    v.setBackgroundResource(R.drawable.added_cart_bg);
+////
+////                    // закидываем в корзину
+////                    userCartDao.insert(userCartEntity);
+////
+////                }else{
+////                    v.setBackgroundResource(R.drawable.listing_cart_bg);
+////
+////                    // удаляем из корзины
+////                    userCartDao.delete(userCartEntity);
+////                    Toast toast = Toast.makeText(mContext,"Товар удален из корзины", Toast.LENGTH_SHORT);
+////                    toast.show();
+////
+////                }
+//
+//
+//                List<UserCartEntity> userCartsEntities = userCartDao.getAll();
+//
+//                for (UserCartEntity element : userCartsEntities) {
+//                    Log.i(TAG, "id: " + element.id
+//                            +", quantity: "+ element.quantity
+//                            +", p_id: "+ element.products.getId()
+//                            + ", p_name: " + element.products.getName()
+//                            + ", p_price: " + element.products.getPrice()
+//                            + ", p_img: " + element.products.getPhoto());
+//                }
+//
+//
+//
+//
+//            }
+//        });
 
 
 //        // enter card
@@ -137,18 +163,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
-
-        //  если в мапе есть id меняем стиль кнопки
-        if(userCartMap.containsKey(mData.get(position).getId())){
-            holder.add_cart.setBackgroundResource(R.drawable.added_cart_bg);
-        }
-
+        //holder.setIsRecyclable(true);
 
         holder.tv_name.setText(mData.get(position).getName());
         holder.tv_price.setText(mData.get(position).getPrice() + " р.");
 
+
         // загрузка изображения
         Glide.with(mContext).load(mData.get(position).getPhoto()).apply(option).into(holder.img_photo);
+
+
     }
 
     @Override
@@ -157,8 +181,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
 
-    // MyViewHolder
-    public static class MyViewHolder extends RecyclerView.ViewHolder {
+    // MyViewHolder (обрабатываем клики)
+    public static class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener,
+            View.OnLongClickListener {
 
         TextView tv_name;
         TextView tv_price;
@@ -178,9 +203,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             // Блок добавить в корзину
             add_cart = itemView.findViewById(R.id.add_cart);
 
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
 
+        @Override
+        public void onClick(View v) {
+            Log.d(TAG, "Item clicked at position " + getAdapterPosition());
+        }
 
+        @Override
+        public boolean onLongClick(View v) {
+            Log.d(TAG, "Item long-clicked at position " + getAdapterPosition());
+            return true;
+        }
     }
 }
