@@ -82,7 +82,7 @@
                 android:text="298.50 ₽"
                 android:textColor="@color/listing_price"
                 android:gravity="center"
-                android:textSize="18dp" />
+                android:textSize="16dp" />
 
         </LinearLayout>
 

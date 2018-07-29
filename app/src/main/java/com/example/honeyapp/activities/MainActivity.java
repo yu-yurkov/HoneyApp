@@ -1,5 +1,6 @@
 package com.example.honeyapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,8 +10,10 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -37,8 +40,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
 
-
-
+    private static final String TAG = "TAG-";
     private final String JSON_URL = "https://agents.sbonus.ru/json/";
     private JsonArrayRequest request;
     private RequestQueue requestQueue;
@@ -71,6 +73,10 @@ public class MainActivity extends AppCompatActivity
         recyclerView = findViewById(R.id.recycler_view_id);
         jsonrequest();
 
+
+        // добавить магазни
+
+
     }
 
     @Override
@@ -99,10 +105,12 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_cart) {
+            Log.i(TAG, "onOptionsItemSelected: Корзина");
             return true;
         }
 
         if (id == R.id.add_store) {
+            startActivity(new Intent(MainActivity.this, AddStore.class));
             return true;
         }
 
@@ -205,5 +213,17 @@ public class MainActivity extends AppCompatActivity
 
         recyclerView.setAdapter(myAdapter);
 
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        AppDatabase db = App.getInstance().getDatabase();
+        UserCartDao userCartDao = db.userCartDao();
+        userCartDao.deleteAll();
+
+        Toast.makeText(getApplicationContext(), "The Мёд: Упс! Корзина сброшена.", Toast.LENGTH_SHORT).show();
     }
 }

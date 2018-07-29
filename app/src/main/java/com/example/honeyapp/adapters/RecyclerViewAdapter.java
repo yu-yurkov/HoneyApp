@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.TreeMap;
 
 
-public class RecyclerViewAdapter extends SelectableAdapter<RecyclerViewAdapter.MyViewHolder>{
+public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.MyViewHolder>{
 
     private static final String TAG = "TAG";
     private Context mContext;
@@ -65,85 +65,29 @@ public class RecyclerViewAdapter extends SelectableAdapter<RecyclerViewAdapter.M
 
         final MyViewHolder myViewHolder = new MyViewHolder(view);
 
-
-        //
-        Log.i(TAG, "onCreateViewHolder: " + myViewHolder.getAdapterPosition());
-
-
-
-        // кликаем добавить в корзину
-//        myViewHolder.add_cart.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
+//                AppDatabase db = App.getInstance().getDatabase();
+//                UserCartDao userCartDao = db.userCartDao();
 //
+//                    // удаляем из корзины
+//                   //userCartDao.deleteAll();
 //
-//                //Log.i(TAG, "onClick: " + v.getId());
-
-                AppDatabase db = App.getInstance().getDatabase();
-                UserCartDao userCartDao = db.userCartDao();
+//                List<UserCartEntity> userCartsEntities = userCartDao.getAll();
 //
-//                // определяем id товара
-//                int p_id = mData.get(myViewHolder.getAdapterPosition()).getId();
-//
-//                // формируем данные
-//                UserCartEntity userCartEntity = new UserCartEntity();
-//                userCartEntity.id = p_id;
-//                userCartEntity.quantity = 1;
-//                userCartEntity.products = mData.get(myViewHolder.getAdapterPosition());
-//
-//                // проверяем наличие товара в корзине
-//                UserCartEntity userCartId = userCartDao.getById(p_id);
-//
-//
-////                if(userCartId == null){
-////
-////                    Toast toast = Toast.makeText(mContext,"Товар добален в корзину", Toast.LENGTH_SHORT);
-////                    toast.show();
-////
-////
-////
-////
-////                    v.setBackgroundResource(R.drawable.added_cart_bg);
-////
-////                    // закидываем в корзину
-////                    userCartDao.insert(userCartEntity);
-////
-////                }else{
-////                    v.setBackgroundResource(R.drawable.listing_cart_bg);
-////
-////                    // удаляем из корзины
-////                    userCartDao.delete(userCartEntity);
-////                    Toast toast = Toast.makeText(mContext,"Товар удален из корзины", Toast.LENGTH_SHORT);
-////                    toast.show();
-////
-////                }
-//
-
-        List<UserCartEntity> userCartsEntities = userCartDao.getAll();
-
-        for (UserCartEntity element : userCartsEntities) {
-            Log.i(TAG, "id: " + element.id
-                    +", quantity: "+ element.quantity
-                    +", p_id: "+ element.products.getId()
-                    + ", p_name: " + element.products.getName()
-                    + ", p_price: " + element.products.getPrice()
-                    + ", p_img: " + element.products.getPhoto());
-        }
-
-//
-//
-//
-//            }
-//        });
+//                for (UserCartEntity element : userCartsEntities) {
+//                    Log.i(TAG, "id: " + element.id
+//                            +", quantity: "+ element.quantity
+//                            +", p_id: "+ element.products.getId()
+//                            + ", p_name: " + element.products.getName()
+//                            + ", p_price: " + element.products.getPrice()
+//                            + ", p_img: " + element.products.getPhoto());
+//                }
 
 
 //        // enter card
 //        myViewHolder.view_container.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View v) {
-//
-//
-//
+
 ////                Intent i = new Intent(mContext, ProductActivity.class);
 ////                i.putExtra("product_name", mData.get(myViewHolder.getAdapterPosition()).getName());
 ////                i.putExtra("product_price", mData.get(myViewHolder.getAdapterPosition()).getPrice());
@@ -161,14 +105,8 @@ public class RecyclerViewAdapter extends SelectableAdapter<RecyclerViewAdapter.M
         return myViewHolder;
     }
 
-
-
-
-
-
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-
 
         holder.tv_name.setText(mData.get(position).getName());
         holder.tv_price.setText(mData.get(position).getPrice() + " р.");
@@ -176,19 +114,23 @@ public class RecyclerViewAdapter extends SelectableAdapter<RecyclerViewAdapter.M
         // загрузка изображения
         Glide.with(mContext).load(mData.get(position).getPhoto()).apply(option).into(holder.img_photo);
 
+        //!!! вариант с корзиной
+        if(userCartMap.containsKey(mData.get(position).getId())){
+            sparseBooleanArray.put(position,true);
+        }
+
         if (sparseBooleanArray.get(position))
         {
-            holder.add_cart.setBackgroundColor(Color.GREEN);
+            holder.add_cart.setBackgroundResource(R.drawable.added_cart_bg);
+            holder.add_cart.setColorFilter(Color.WHITE);
         }
         else
         {
-            holder.add_cart.setBackgroundColor(Color.WHITE);
+            holder.add_cart.setBackgroundResource(R.drawable.listing_cart_bg);
+            holder.add_cart.setColorFilter(Color.GRAY);
         }
 
 
-
-
-        Log.d(TAG, "onBindViewHolder: " + mData.get(position).getId());
     }
 
     @Override
@@ -215,28 +157,39 @@ public class RecyclerViewAdapter extends SelectableAdapter<RecyclerViewAdapter.M
             tv_price = itemView.findViewById(R.id.price);
             img_photo = itemView.findViewById(R.id.photo);
 
-            // Блок добавить в корзину
+            // кликаем добавить в корзину
             add_cart = itemView.findViewById(R.id.add_cart);
-
             add_cart.setOnClickListener(this);
 
-        }
+           }
 
 
         @Override
         public void onClick(View v) {
 
+            AppDatabase db = App.getInstance().getDatabase();
+            UserCartDao userCartDao = db.userCartDao();
+
+            // формируем данные
+            UserCartEntity userCartEntity = new UserCartEntity();
+            userCartEntity.id = mData.get(getAdapterPosition()).getId();
+            userCartEntity.quantity = 1;
+            userCartEntity.products = mData.get(getAdapterPosition());
+
+
             if (!sparseBooleanArray.get(getAdapterPosition()))
             {
                 sparseBooleanArray.put(getAdapterPosition(),true);
-                notifyItemChanged(getAdapterPosition());
+                userCartDao.insert(userCartEntity); // записываем в корзину
             }
+
             else // if clicked item is already selected
             {
                 sparseBooleanArray.put(getAdapterPosition(),false);
-                notifyItemChanged(getAdapterPosition());
+                userCartDao.delete(userCartEntity); // удаляем из корзины
             }
 
+            notifyDataSetChanged();
         }
     }
 }
