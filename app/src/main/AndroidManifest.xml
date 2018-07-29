@@ -24,9 +24,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activities.AddStore"
+        <activity android:name=".activities.AddStore">
 
-            />
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MainActivity" />
+
+        </activity>
     </application>
 
 </manifest>

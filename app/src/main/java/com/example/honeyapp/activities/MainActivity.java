@@ -1,6 +1,7 @@
 package com.example.honeyapp.activities;
 
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
@@ -48,10 +50,12 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView recyclerView;
     private TreeMap<Integer, Integer> userCartMap;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -152,19 +156,19 @@ public class MainActivity extends AppCompatActivity
             public void onResponse(JSONArray response) {
 
                 JSONObject jsonObject = null;
-                for (int i = 0; i < response.length(); i++) {
+                        for (int i = 0; i < response.length(); i++) {
 
-                    try{
-                        jsonObject = response.getJSONObject(i);
-                        Products products = new Products();
+                            try{
+                                jsonObject = response.getJSONObject(i);
+                                Products products = new Products();
 
-                        products.setId(jsonObject.getInt("id"));
-                        products.setName(jsonObject.getString("name"));
-                        products.setPrice(jsonObject.getString("price"));
-                        products.setPhoto(jsonObject.getString("photo"));
+                                products.setId(jsonObject.getInt("id"));
+                                products.setName(jsonObject.getString("name"));
+                                products.setPrice(jsonObject.getString("price"));
+                                products.setPhoto(jsonObject.getString("photo"));
 
 
-                        listProducts.add(products);
+                                listProducts.add(products);
 
 
 
