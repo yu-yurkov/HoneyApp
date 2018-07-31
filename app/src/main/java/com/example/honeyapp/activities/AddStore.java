@@ -175,7 +175,8 @@ public class AddStore extends AppCompatActivity {
 
 
 
-
+        // пример отправки и получения данных
+        // https://www.androidhive.info/2014/09/android-json-parsing-using-volley/
 
 
 
