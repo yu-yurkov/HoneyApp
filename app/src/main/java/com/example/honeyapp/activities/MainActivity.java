@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_cart) {
-            Log.i(TAG, "onOptionsItemSelected: Корзина");
+            startActivity(new Intent(MainActivity.this, OrderPlace.class));
             return true;
         }
 
