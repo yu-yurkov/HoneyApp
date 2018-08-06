@@ -109,12 +109,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
         holder.tv_name.setText(mData.get(position).getName());
-        holder.tv_price.setText(mData.get(position).getPrice() + " р.");
+        holder.tv_price.setText(mData.get(position).getPrice());
 
         // загрузка изображения
         Glide.with(mContext).load(mData.get(position).getPhoto()).apply(option).into(holder.img_photo);
 
-        //!!! вариант с корзиной
+        // если в БД корзины уже лежат товары
         if(userCartMap.containsKey(mData.get(position).getId())){
             sparseBooleanArray.put(position,true);
         }
@@ -129,7 +129,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             holder.add_cart.setBackgroundResource(R.drawable.listing_cart_bg);
             holder.add_cart.setColorFilter(Color.GRAY);
         }
-
 
     }
 
@@ -160,8 +159,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             // кликаем добавить в корзину
             add_cart = itemView.findViewById(R.id.add_cart);
             add_cart.setOnClickListener(this);
-
-           }
+        }
 
 
         @Override
@@ -186,10 +184,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             else // if clicked item is already selected
             {
                 sparseBooleanArray.put(getAdapterPosition(),false);
-                userCartDao.delete(userCartEntity); // удаляем из корзины
+                userCartDao.delete(userCartEntity); // удаляем из корзины в ДБ
+
+                userCartMap.remove(userCartEntity.id); // удаляем из массива
             }
 
             notifyDataSetChanged();
+
         }
     }
 }

@@ -218,16 +218,4 @@ public class MainActivity extends AppCompatActivity
         recyclerView.setAdapter(myAdapter);
 
     }
-
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        AppDatabase db = App.getInstance().getDatabase();
-        UserCartDao userCartDao = db.userCartDao();
-        userCartDao.deleteAll();
-
-        Toast.makeText(getApplicationContext(), "The Мёд: Упс! Корзина сброшена.", Toast.LENGTH_SHORT).show();
-    }
 }
