@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.honeyapp.R;
+import com.example.honeyapp.activities.OrderPlace;
 import com.example.honeyapp.dao.UserCartDao;
 import com.example.honeyapp.database.App;
 import com.example.honeyapp.database.AppDatabase;
@@ -55,6 +56,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         sparseBooleanArray = new SparseBooleanArray();
     }
+
 
     @Override
     public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
