@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+
+    android:layout_margin="5dp"
+    android:background="@drawable/listing_item_bg"
+    android:id="@+id/container">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:padding="2dp">
+
+
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+
+
+
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+
+
+
+            <ImageView
+                android:id="@+id/photo"
+                android:layout_width="96dp"
+                android:layout_height="96dp"
+                android:scaleType="fitCenter"
+
+                android:background="@color/listing_bg"/>
+        </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"
+                android:minWidth="25dp"
+                android:minHeight="25dp"
+                android:background="@drawable/counter_bg"
+                android:layout_marginRight="5dp"
+                android:gravity="center"
+                android:textColor="@android:color/white"
+                android:id="@+id/item_quantity" />
+
+
+        </FrameLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Мёд «Дальневосточный» липовый с ядрами кедрового ореха (взбитый), 300 гр.\12 б., пластик"
+                android:layout_gravity="center" />
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1.2"
+            android:layout_margin="10dp"
+            android:background="@drawable/add_cart_bg"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/listing_cart_bg"
+                android:orientation="horizontal">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="+"
+                    android:layout_weight="1"
+                    android:id="@+id/plusButton"/>
+
+
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="-"
+                    android:layout_weight="1"
+                    android:id="@+id/minusButton"/>
+
+            </LinearLayout>
+
+
+
+
+
+
+
+                <TextView
+                    android:id="@+id/price"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="298.50 ₽"
+                    android:textColor="@color/listing_price"
+                    android:gravity="center"
+                    android:textSize="16dp" />
+
+
+
+
+
+
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+
+
+
+
+
+
+</LinearLayout>

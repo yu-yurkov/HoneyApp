@@ -5,25 +5,89 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/user_cart_order_place"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="Список товаров" />
-
-
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/cart_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="10dp"
-        android:background="@color/listing_bg">
 
+        android:background="@color/listing_bg"
+        android:padding="10dp"
+        android:layout_weight="1">
 
     </android.support.v7.widget.RecyclerView>
+
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:paddingTop="5dp"
+        android:layout_weight="1">
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="0dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:text="Сумма заказа:"
+                android:textSize="16dp" />
+
+            <TextView
+                android:id="@+id/user_cart_summ"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:text="0.0"
+                android:textSize="16dp" />
+
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/add_cart_bg"
+            android:orientation="vertical">
+
+            <Spinner
+                android:id="@+id/stores"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"></Spinner>
+        </LinearLayout>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="orderSend"
+            android:text="Отправить заявку" />
+
+    </LinearLayout>
+
+
+
+
+
+
+
+
 </LinearLayout>
