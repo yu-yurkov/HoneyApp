@@ -14,7 +14,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.honeyapp.R;
 import com.example.honeyapp.dao.UserCartDao;
-import com.example.honeyapp.dao.UserCartDao_Impl;
 import com.example.honeyapp.database.App;
 import com.example.honeyapp.database.AppDatabase;
 import com.example.honeyapp.entities.UserCartEntity;

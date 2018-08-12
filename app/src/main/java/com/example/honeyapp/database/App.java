@@ -12,7 +12,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
-        database =  Room.databaseBuilder(this, AppDatabase.class, "theHoney").allowMainThreadQueries().build();
+        database =  Room.databaseBuilder(this, AppDatabase.class, "theHoney").allowMainThreadQueries().fallbackToDestructiveMigration().build();
     }
 
     public static App getInstance() {
