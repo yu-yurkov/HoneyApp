@@ -1,5 +1,6 @@
 package com.example.honeyapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -37,6 +38,9 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
 
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -91,7 +95,7 @@ public class OrderPlace extends AppCompatActivity{
         userCartSumm = findViewById(R.id.user_cart_summ);
         cartRefresh(userCart);
 
-        ///
+
         ///
         StringRequest postRequest = new StringRequest(Request.Method.POST, JSON_URL, new Response.Listener<String>() {
 
@@ -99,6 +103,10 @@ public class OrderPlace extends AppCompatActivity{
             public void onResponse(String response) {
                 // response
                 Log.d("Response", response);
+
+                AppDatabase db = App.getInstance().getDatabase();
+                StoreDao storeDao = db.storeDao();
+                storeDao.deleteAll();
 
                 GsonBuilder builder = new GsonBuilder();
                 Gson gson = builder.create();
@@ -136,7 +144,7 @@ public class OrderPlace extends AppCompatActivity{
                 Map<String, String>  params = new HashMap<String, String>();
                 params.put("act", "getShops");
                 params.put("token", "protected");
-                params.put("user_id", "15");
+                params.put("agent_id", "4");
 
                 return params;
 
@@ -146,11 +154,26 @@ public class OrderPlace extends AppCompatActivity{
         requestQueue = Volley.newRequestQueue(OrderPlace.this);
         requestQueue.add(postRequest);
 
-        //получаем список
+
+        //
+        setStoreList();
+        buildSpinner(storeList);
+
+        OrderPlaceAdapter myAdapter = new OrderPlaceAdapter(this, userCart);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(myAdapter);
+
+    }
+
+    public void setStoreList() {
+        AppDatabase db = App.getInstance().getDatabase();
         StoreDao storeDao = db.storeDao();
-
         this.storeList = storeDao.getAll();
+    }
 
+
+
+    public void buildSpinner(List<StoreEntity> storeList){
         // магазины
         ArrayList<String> list = new ArrayList<>();
         for (int i = 0; i < storeList.size(); i++) {
@@ -161,29 +184,7 @@ public class OrderPlace extends AppCompatActivity{
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, list);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-
-        OrderPlaceAdapter myAdapter = new OrderPlaceAdapter(this, userCart);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(myAdapter);
-
-
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                String country=   spinner.getItemAtPosition(spinner.getSelectedItemPosition()).toString();
-                Toast.makeText(getApplicationContext(),country,Toast.LENGTH_LONG).show();
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-                // DO Nothing here
-            }
-        });
-
-
-
     }
-
 
     // сохраняем адреса магазинов
     public void storeDataInsert(Store store){
@@ -197,14 +198,82 @@ public class OrderPlace extends AppCompatActivity{
         storeEntity.address = store.getAddress();
 
         storeDao.insert(storeEntity);
+
+        setStoreList();
+        buildSpinner(getStoreEntity());
     }
 
 
-
-
-
     public void orderSend(View v){
-        Log.i("TAG", "Выбрана позиция: " +spinner.getSelectedItemId());
+
+
+        AppDatabase db = App.getInstance().getDatabase();
+        UserCartDao userCartDao = db.userCartDao();
+
+        final StoreEntity storeSelected = storeList.get((int) spinner.getSelectedItemId());
+
+        // товары в корзине
+        final List<UserCartEntity> userCart =  userCartDao.getAll();
+
+        ///
+        StringRequest postRequest = new StringRequest(Request.Method.POST, JSON_URL, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                // response
+                Log.d("Response", response);
+            }
+
+        },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", "");
+                    }
+                }
+        ) {
+            @Override
+            protected Map<String, String> getParams()
+            {
+                // товар/ количество
+                TreeMap<Integer, Integer> userCartMap = new TreeMap<Integer, Integer>();
+                // упаковываем в TreeMap
+                for (UserCartEntity element : userCart) {
+                    userCartMap.put(element.id, element.quantity);
+                }
+
+                Gson gson = new Gson();
+                String json = gson.toJson(userCartMap);
+
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("act", "orderPlace");
+                params.put("token", "protected");
+                params.put("agent_id", "4");
+                params.put("store_id", ""+storeSelected.id);
+                params.put("products_id", json);
+
+                return params;
+
+            }
+        };
+
+        requestQueue = Volley.newRequestQueue(OrderPlace.this);
+        requestQueue.add(postRequest);
+
+
+        Toast toast = Toast.makeText(getApplicationContext(),
+                "Заявка успешно отправлена", Toast.LENGTH_SHORT);
+        toast.show();
+
+        // все отправили, идем на главную, чистим корзину
+        userCartDao.deleteAll();
+
+        // переход на главную
+        startActivity(new Intent(OrderPlace.this, MainActivity.class));
+
+
     }
 
     // пересчитываем товары в корзине
@@ -229,5 +298,11 @@ public class OrderPlace extends AppCompatActivity{
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+
+
+    public List<StoreEntity> getStoreEntity() {
+        return this.storeList;
     }
 }
