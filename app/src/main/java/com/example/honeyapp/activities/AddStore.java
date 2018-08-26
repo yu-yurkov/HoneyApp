@@ -17,6 +17,10 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.honeyapp.R;
+import com.example.honeyapp.dao.UsersDao;
+import com.example.honeyapp.database.App;
+import com.example.honeyapp.database.AppDatabase;
+import com.example.honeyapp.entities.UsersEntity;
 import com.example.honeyapp.model.Products;
 
 import org.json.JSONArray;
@@ -24,6 +28,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -159,9 +164,17 @@ public class AddStore extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), "Данные успешно отправлены", Toast.LENGTH_SHORT).show();
 
         // отправляем данные на серсер
+        AppDatabase db = App.getInstance().getDatabase();
+        UsersDao usersDao = db.usersDao();
+        List<UsersEntity> user = usersDao.getAll();
+        int id = user.get(0).id;
+        String token = user.get(0).token;
 
 
         mRequestParams = new TreeMap<String, String>();
+        mRequestParams.put("act", "addStore");
+        mRequestParams.put("token", token);
+        mRequestParams.put("agent_id", String.valueOf(id));
         mRequestParams.put("storeInn",textInputStoreInn.getEditText().getText().toString());
         mRequestParams.put("storeAddress",textInputStoreAddress.getEditText().getText().toString());
         mRequestParams.put("storeTitle",textInputStoreTitle.getEditText().getText().toString());

@@ -26,11 +26,13 @@ import com.example.honeyapp.R;
 import com.example.honeyapp.adapters.OrderPlaceAdapter;
 import com.example.honeyapp.dao.StoreDao;
 import com.example.honeyapp.dao.UserCartDao;
+import com.example.honeyapp.dao.UsersDao;
 import com.example.honeyapp.database.App;
 import com.example.honeyapp.database.AppDatabase;
 import com.example.honeyapp.entities.StoreEntity;
 import com.example.honeyapp.entities.UserCartEntity;
 
+import com.example.honeyapp.entities.UsersEntity;
 import com.example.honeyapp.model.Products;
 import com.example.honeyapp.model.Store;
 import com.google.gson.Gson;
@@ -141,10 +143,16 @@ public class OrderPlace extends AppCompatActivity{
 
                 //return mRequestParams;
 
+                AppDatabase db = App.getInstance().getDatabase();
+                UsersDao usersDao = db.usersDao();
+                List<UsersEntity> user = usersDao.getAll();
+                int id = user.get(0).id;
+                String token = user.get(0).token;
+
                 Map<String, String>  params = new HashMap<String, String>();
                 params.put("act", "getShops");
-                params.put("token", "protected");
-                params.put("agent_id", "4");
+                params.put("token", token);
+                params.put("agent_id", String.valueOf(id));
 
                 return params;
 
@@ -247,10 +255,18 @@ public class OrderPlace extends AppCompatActivity{
                 Gson gson = new Gson();
                 String json = gson.toJson(userCartMap);
 
+
+                AppDatabase db = App.getInstance().getDatabase();
+                UsersDao usersDao = db.usersDao();
+                List<UsersEntity> user = usersDao.getAll();
+                int id = user.get(0).id;
+                String token = user.get(0).token;
+
+
                 Map<String, String>  params = new HashMap<String, String>();
                 params.put("act", "orderPlace");
-                params.put("token", "protected");
-                params.put("agent_id", "4");
+                params.put("token", token);
+                params.put("agent_id", String.valueOf(id));
                 params.put("store_id", ""+storeSelected.id);
                 params.put("products_id", json);
 
@@ -271,7 +287,10 @@ public class OrderPlace extends AppCompatActivity{
         userCartDao.deleteAll();
 
         // переход на главную
-        startActivity(new Intent(OrderPlace.this, MainActivity.class));
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
 
 
     }

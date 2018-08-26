@@ -1,7 +1,6 @@
 package com.example.honeyapp.activities;
 
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,8 +13,6 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -24,10 +21,13 @@ import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.honeyapp.R;
 import com.example.honeyapp.adapters.RecyclerViewAdapter;
+import com.example.honeyapp.dao.StoreDao;
 import com.example.honeyapp.dao.UserCartDao;
+import com.example.honeyapp.dao.UsersDao;
 import com.example.honeyapp.database.App;
 import com.example.honeyapp.database.AppDatabase;
 import com.example.honeyapp.entities.UserCartEntity;
+import com.example.honeyapp.entities.UsersEntity;
 import com.example.honeyapp.model.Products;
 
 import org.json.JSONArray;
@@ -54,7 +54,29 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+
+        // переход на главную
+        //startActivity(new Intent(MainActivity.this, LoginActivity.class));
+
+        // подключаемся к базе
+        AppDatabase db = App.getInstance().getDatabase();
+        UsersDao usersDao = db.usersDao();
+
+        //usersDao.deleteAll();
+
+        List<UsersEntity> user = usersDao.getAll();
+
+        if(user.size()>0){
+            setContentView(R.layout.activity_main);
+        }else{
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
+            return;
+        }
+
 
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -137,8 +159,22 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_share) {
 
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_exit) {
+            // logout
+            AppDatabase db = App.getInstance().getDatabase();
+            UsersDao usersDao = db.usersDao();
+            usersDao.deleteAll();
 
+            StoreDao storeDao = db.storeDao();
+            storeDao.deleteAll();
+
+            UserCartDao userCartDao = db.userCartDao();
+            userCartDao.deleteAll();
+
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
