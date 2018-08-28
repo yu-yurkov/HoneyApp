@@ -13,11 +13,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.honeyapp.R;
 import com.example.honeyapp.adapters.RecyclerViewAdapter;
@@ -29,13 +32,19 @@ import com.example.honeyapp.database.AppDatabase;
 import com.example.honeyapp.entities.UserCartEntity;
 import com.example.honeyapp.entities.UsersEntity;
 import com.example.honeyapp.model.Products;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class MainActivity extends AppCompatActivity
@@ -43,12 +52,13 @@ public class MainActivity extends AppCompatActivity
 
 
     private static final String TAG = "TAG-";
-    private final String JSON_URL = "https://agents.sbonus.ru/json/";
+    private final String JSON_URL = "https://agents.sbonus.ru/api/products/";
     private JsonArrayRequest request;
     private RequestQueue requestQueue;
     private List<Products> listProducts;
     private RecyclerView recyclerView;
     private TreeMap<Integer, Integer> userCartMap;
+    private String token;
 
 
     @Override
@@ -69,6 +79,7 @@ public class MainActivity extends AppCompatActivity
 
         if(user.size()>0){
             setContentView(R.layout.activity_main);
+            setToken(user.get(0).token);
         }else{
             Intent intent = new Intent(this, LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -187,45 +198,130 @@ public class MainActivity extends AppCompatActivity
     /////////////////////////////
     private void jsonrequest() {
 
-        request = new JsonArrayRequest(JSON_URL, new Response.Listener<JSONArray>() {
+
+        // отправляем данные на сервер и получаем ответ
+        ///
+        StringRequest postRequest = new StringRequest(Request.Method.POST, JSON_URL, new Response.Listener<String>() {
+
             @Override
-            public void onResponse(JSONArray response) {
+            public void onResponse(String response) {
+                // response
 
-                JSONObject jsonObject = null;
-                        for (int i = 0; i < response.length(); i++) {
-
-                            try{
-                                jsonObject = response.getJSONObject(i);
-                                Products products = new Products();
-
-                                products.setId(jsonObject.getInt("id"));
-                                products.setName(jsonObject.getString("name"));
-                                products.setPrice(jsonObject.getString("price"));
-                                products.setPhoto(jsonObject.getString("photo"));
-
-
-                                listProducts.add(products);
+                JsonParser parser = new JsonParser();
+                JsonElement jsonElement = parser.parse(response);
+                JsonObject rootObject = jsonElement.getAsJsonObject();
 
 
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                if(rootObject.get("result").getAsInt() > 0 ){
+
+                    JsonObject data = rootObject.getAsJsonObject("data");
+                    JsonArray entries = data.getAsJsonArray("entries");
+
+                    JsonObject jsonObject = null;
+
+                    for (int i = 0; i < entries.size(); i++) {
+
+
+
+                        jsonObject = entries.get(i).getAsJsonObject();
+                        Products products = new Products();
+
+
+
+                        products.setId(jsonObject.get("id").getAsInt());
+                        products.setName(jsonObject.get("name").getAsString());
+                        products.setPrice(jsonObject.get("price").getAsString());
+                        products.setPhoto(jsonObject.get("photo").getAsString());
+
+
+                        listProducts.add(products);
+
                     }
 
+                    setuprecycleview(listProducts);
+
+
+                }
+                else{
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            "Error: "+rootObject.get("message").getAsString(), Toast.LENGTH_SHORT);
+                    toast.show();
                 }
 
-                setuprecycleview(listProducts);
+
+                Log.i(TAG, "onResponse: " + rootObject.toString());
+
+
 
             }
-        }, new Response.ErrorListener() {
+
+
+
+        },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        // error
+                        Log.d("Error.Response", "");
+                    }
+                }
+        ) {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            protected Map<String, String> getParams()
+            {
+
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("token", token);
+                return params;
 
             }
-        });
+        };
+
+
+//        request = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+//            @Override
+//            public void onResponse(JSONArray response) {
+//
+//                Log.i(TAG, "onResponse: ");
+//
+//                JSONObject jsonObject = null;
+//                        for (int i = 0; i < response.length(); i++) {
+//
+//                            try{
+//                                jsonObject = response.getJSONObject(i);
+//                                Products products = new Products();
+//
+//                                products.setId(jsonObject.getInt("id"));
+//                                products.setName(jsonObject.getString("name"));
+//                                products.setPrice(jsonObject.getString("price"));
+//                                products.setPhoto(jsonObject.getString("photo"));
+//
+//
+//                                listProducts.add(products);
+//
+//
+//
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
+//
+//                }
+//
+//                setuprecycleview(listProducts);
+//
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//
+//            }
+//        });
 
         requestQueue = Volley.newRequestQueue(MainActivity.this);
-        requestQueue.add(request);
+        //requestQueue.add(request);
+        requestQueue.add(postRequest);
 
     }
 
@@ -253,5 +349,9 @@ public class MainActivity extends AppCompatActivity
 
         recyclerView.setAdapter(myAdapter);
 
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

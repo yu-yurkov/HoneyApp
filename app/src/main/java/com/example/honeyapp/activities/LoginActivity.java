@@ -44,7 +44,7 @@ public class LoginActivity extends AppCompatActivity {
     EditText phone;
     EditText password;
 
-    private final String JSON_URL = "https://agents.sbonus.ru/json/add_store.php";
+    private final String JSON_URL = "https://agents.sbonus.ru/api/auth/";
     private RequestQueue requestQueue;
     private JsonElement obj;
 
@@ -103,9 +103,8 @@ public class LoginActivity extends AppCompatActivity {
             {
 
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("act", "login");
-                params.put("phone", mPhone);
-                params.put("password", mPass);
+                params.put("login", mPhone);
+                params.put("pass", mPass);
 
                 return params;
 
@@ -125,7 +124,8 @@ public class LoginActivity extends AppCompatActivity {
         JsonObject rootObject = jsonElement.getAsJsonObject();
 
         // если авторизовались
-        if(rootObject.get("data") != null ){
+        if(rootObject.get("result").getAsInt() > 0 ){
+
             JsonObject dataObject = rootObject.getAsJsonObject("data");
 
             // подключаемся к базе
@@ -148,24 +148,14 @@ public class LoginActivity extends AppCompatActivity {
 
         // ошибка авторизации
         else{
-            JsonObject dataObject = rootObject.getAsJsonObject("error");
+            //JsonObject dataObject = rootObject.getAsJsonObject("error");
             Toast toast = Toast.makeText(getApplicationContext(),
-                    "Error: "+dataObject.toString(), Toast.LENGTH_SHORT);
+                    "Error: "+rootObject.get("message").getAsString(), Toast.LENGTH_SHORT);
             toast.show();
 
             signInButton.setClickable(true);
         }
-
-
-
-//        String message = rootObject.get("message").getAsString(); // get property "message"
-//        JsonObject childObject = rootObject.getAsJsonObject("place"); // get place object
-//        String place = childObject.get("name").getAsString(); // get property "name"
-//        System.out.println(message + " " + place); // print "Hi World!"*/
-
-
-
-
+        
     }
 
 
